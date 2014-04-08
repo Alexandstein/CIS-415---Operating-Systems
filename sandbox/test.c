@@ -1,4 +1,5 @@
-/*GDB NOTES
+/*
+===GDB NOTES===
 Compile with gcc -g <file.c>
 Run file with gdb <program file>
 
@@ -8,6 +9,9 @@ Commands:
 	run: 	runs file
 	n:    	next line in main. Runs and skips over functions
 	step: 	Run line by line, steps through functions as well.
+	
+===Valgrind notes===
+
 */
 #include <signal.h>
 #include <unistd.h>
@@ -17,8 +21,8 @@ Commands:
 
 int main(int argc, char *argv[])
 {	
-	int horp;
-	int dorp;
+	int* horp = malloc(sizeof(int) * 6); //Memleak
+	int dorp = 5;
 	
 	printf("Allo\n");
 	printf("Halllo\n");		
