@@ -11,7 +11,8 @@ Commands:
 	step: 	Run line by line, steps through functions as well.
 	
 ===Valgrind notes===
-
+To look for memory leaks...
+   valgrind --tool=memcheck --leak-check=yes ./a.out
 */
 #include <signal.h>
 #include <unistd.h>
@@ -25,5 +26,5 @@ int main(int argc, char *argv[])
 	int dorp = 5;
 	
 	printf("Allo\n");
-	printf("Halllo\n");		
+	printf("Halllo\n");
 }
