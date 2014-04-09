@@ -22,7 +22,7 @@ To look for memory leaks...
 
 int main(int argc, char *argv[])
 {	
-	int* horp = malloc(sizeof(int) * 6); //Memleak
+	char* horp = malloc(400); //Memleak
 	int dorp = 5;
 	
 	printf("Allo\n");
