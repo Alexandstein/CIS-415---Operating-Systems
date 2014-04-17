@@ -20,11 +20,39 @@ To look for memory leaks...
 #include <stdio.h>
 #include <limits.h>
 
+//Handler
+void handler(int signum){
+	perror("OH NOOOOO\n");
+	exit(0);
+}
+
+int len(const char* input){
+	int i = 0;
+	while(input[i] != '\0'){
+		i++;
+	}
+	return i;
+}
+
 int main(int argc, char *argv[])
 {	
-	char* horp = malloc(400); //Memleak
-	int dorp = 5;
-	
-	printf("Allo\n");
-	printf("Halllo\n");
+	//Alarm/Signal example
+	signal(SIGALRM, handler);
+	alarm(1);
+	while(1);
+	//execve example
+	execve("hello\n", NULL, NULL);
+	//Write example
+	const void* buf = "123456789\n";
+	write(STDOUT_FILENO,buf,1);
+	//Fork example
+	int status;
+	pid_t pid = fork();	//Forks at this point. Child never has pid set, differentiate like this.
+	if(pid == 0){
+		printf("I'm a child!\n");
+	}else{
+		waitpid(pid, &status, 0);
+		printf("I'm a parent!\n");
+	}
+		printf("%d\n",len(buf));
 }
