@@ -1,6 +1,6 @@
 Snippets
 
-#include <linux/kernel.h>:
+#include <linux/kernel.h>
 
 asmlinkage long sys_hw(void) {
     printk("Hey there! I am a system call\n");
@@ -10,18 +10,22 @@ asmlinkage long sys_hw(void) {
 Makefile
 obj-y := hw.o
 
-sudo vim usr/src/linux-3.2.57/Makefile
+sudo vim /usr/src/linux-3.2.57/Makefile
 Line 711
 change to core-y := kernel/ mm/ fs/ ipc/ security/ crypto/ block/ hw/
 
-sudo vim usr/src/linux-3.2.57/include/linux/syscalls.h
-Line 849
+sudo vim /usr/src/linux-3.2.57/include/linux/syscalls.h
+Line 849 after setns
 add asmlinkage long sys_hw(void);
 
 
-sudo vim usr/src/linux-3.2.57/arch/x86/include/asm/unistd_32.h
+sudo vim /usr/src/linux-3.2.57/arch/x86/include/asm/unistd_32.h
 Between the __NR_setns and #ifdef __KERNEL__ lines, add the following:
 #define __NR_hw 350
+
+sudo vim /usr/src/linux-3.2.57/arch/x86/include/asm/unistd_64.h
+After last
+#define __NR_hw 299
 
 sudo vim usr/src/linux-3.2.57/arch/x86/kernel/syscall_table_32.S
 At End
