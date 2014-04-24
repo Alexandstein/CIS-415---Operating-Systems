@@ -8,9 +8,8 @@
 static const void* PROMPT_MESSAGE = "Enter a thing to execute!\n";
 static const void* PROMPT = "$>> ";
 static const int INPUT_SIZE = 2048;
-static const void* ERROR = "UH OH! A thing went wrong. :CCC\n";
-static const void* ALARM_ERROR = "Too long: Deaded\n";
-static const void* KILLSWITCH = "quit";
+static const void* ERROR = "OH NOES! A thing went wrong. :CCC\n";
+static const void* ALARM_ERROR = "Took too long: Dead'd >:( \n";
 //Global variable in order to keep track of child
 int childProcess = 0;
 

@@ -1,0 +1,22 @@
+Snippets
+
+#include <linux/kernel.h>:
+
+asmlinkage long sys_hello(void) {
+    printk("Hello World\n");
+    return 0;
+}
+
+
+sudo vim usr/src/linux-3.2.57/include/linux/syscalls.h
+Line 849
+add asmlinkage long sys_hello(void);
+
+
+sudo vim usr/src/linux-3.2.57/arch/x86/include/asm/unistd_32.h
+Between the __NR_setns and #ifdef __KERNEL__ lines, add the following:
+#define __NR_hello 350
+
+sudo vim usr/src/linux-3.2.57/arch/x86/kernel/syscall_table_32.S
+At End
+.long sys_hello
