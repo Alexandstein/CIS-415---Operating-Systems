@@ -7,6 +7,12 @@ asmlinkage long sys_hello(void) {
     return 0;
 }
 
+Makefile
+obj-y := hello.o
+
+sudo vim usr/src/linux-3.2.57/Makefile
+Line 711
+change to core-y := kernel/ mm/ fs/ ipc/ security/ crypto/ block/ hello/
 
 sudo vim usr/src/linux-3.2.57/include/linux/syscalls.h
 Line 849
