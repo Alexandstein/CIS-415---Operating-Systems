@@ -1,7 +1,6 @@
 Snippets
 
 #include <linux/kernel.h>
-
 asmlinkage long sys_hw(void) {
     printk("Hey there! I am a system call\n");
     return 0;
@@ -27,6 +26,19 @@ sudo vim /usr/src/linux-3.2.57/arch/x86/include/asm/unistd_64.h
 After last
 #define __NR_hw 299
 
+
+sudo vim /usr/src/linux-3.2.57/arch/x86/include/asm/syscalls.h
+Before the #endif
+asmlinkage long sys_hw(void);
+
 sudo vim usr/src/linux-3.2.57/arch/x86/kernel/syscall_table_32.S
 At End
 .long sys_hw
+
+
+make-kpkg clean
+EXPORT CONCCURENCY_LEVEL = 3
+fakeroot make-kpkg –initrd –append-to-version=-CIS415 kernel-image kernel-headers
+sudo dpkg -i linux-image-2.6.32.60+drm33.26-CIS415_2.6.32.60+drm33.26-CIS415-10.00.Custom_i386.deb sudo dpkg -i linux-headers-2.6.32.60+drm33.26-CIS415_2.6.32.60+drm33.26-CIS415-10.00.Custom_i386.deb
+sudo update-initramfs -c -k 2.6.32.60+drm33.26-CIS415
+sudo update-grub
