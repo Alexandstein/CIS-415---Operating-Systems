@@ -38,7 +38,7 @@ At End
 
 make-kpkg clean
 EXPORT CONCCURENCY_LEVEL = 3
-fakeroot make-kpkg –initrd –append-to-version=-CIS415 kernel-image kernel-headers
-sudo dpkg -i linux-image-2.6.32.60+drm33.26-CIS415_2.6.32.60+drm33.26-CIS415-10.00.Custom_i386.deb sudo dpkg -i linux-headers-2.6.32.60+drm33.26-CIS415_2.6.32.60+drm33.26-CIS415-10.00.Custom_i386.deb
-sudo update-initramfs -c -k 2.6.32.60+drm33.26-CIS415
+fakeroot make-kpkg -initrd -append-to-version=cis415 kernel-image kernel-headers
+sudo dpkg -i linux-image-2.6.32.60+drm33.26cis415_2.6.32.60+drm33.26cis415-10.00.Custom_i386.deb sudo dpkg -i linux-headers-2.6.32.60+drm33.26cis415_2.6.32.60+drm33.26cis415-10.00.Custom_i386.deb
+sudo update-initramfs -c -k 2.6.32.60+drm33.26cis415
 sudo update-grub
