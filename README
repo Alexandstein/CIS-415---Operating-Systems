@@ -1,0 +1,80 @@
+Alexander Stein
+CIS 415: Operating Systems
+Project 1
+
+Included files
+	README
+	shell.c
+		-Main shell file.
+	hw.c
+		-Source code for syscall.
+	syscaller.c
+		-Used to call the syscall.
+
+Extra Credit Answers
+	-SIGKILL is the other unhandlable signal. SIGHUP, SIGINT, SIGPIPE, SIGALRM, 
+	 SIGTERM, SIGUSR1, SIGUSR2, SIGSTOP, SIGTSTP, SIGTTIN, and SIGTTOU also stop execution
+	 if left unhandled.
+	 Signals are found in man 7 signal.
+	 
+	-toInt() is the extra credit number parser.
+
+Compilation and execution
+	To compile, simply use `make`. `make clean` conversely get rid of all products.
+	To execute, enter `./shell <timeout in seconds>`
+
+Overview of work accomplished
+	Wrote a functional shell with basic functionality and learned how to use very basic
+	and primitive functionality very close to the operating system. Also learned the
+	compilation process for the kernel. Unfortunately I wasn't able to get the system
+	call working correctly, as it kept returning -1 and I wasn't able to find log entries
+	of it.
+
+Code layout for shell.c
+	/////////////////Functions/////////////////
+	int toDigit()
+	int toInt()
+	void sanitize()
+	///////////////////Handler/////////////////
+	SIGALARM handler
+
+	/////////////////Detailed description/////////////////
+	int toDigit()
+		Description:
+			Takes a character and returns a number from 0-9 on success. -1 if char is not a
+			digit.
+		args:
+			char inputChar
+		Return:
+			-1 on failure. 0-9 on success.
+		
+	int toInt()
+		Description:
+			Takes in string and tried to parse into an int. On failure 0 is returned.
+			If there are space characters (ASCII 0,10,32) in the input string the 
+			parsing is truncated at the space character.
+		args: 
+			char* input
+				String to be converted.
+		Return
+			Int representation of string. Or 0 on failure.
+
+	void sanitize()
+		Description:
+			Sanitizes input by editing string in-place. Strips whitespace at end.
+		args:
+			char* input
+				Input to be sanitized
+		return:
+			(void)
+
+	///////////Main//////////////
+	main()
+
+Hours
+	Up to 15-20 hours spent on project. Many of which spent looking up information and 
+	trying to make good design decisions.
+
+Attributions
+	Basic format for system call creation and (assumed) conventions studied from
+		http://seshagiriprabhu.wordpress.com/2012/11/15/adding-a-simple-system-call-to-the-linux-3-2-0-kernel-from-scratch/.
