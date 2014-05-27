@@ -28,3 +28,5 @@ HW1/shell
 sandbox/test.c
 
 *.tgz
+
+*.txt

@@ -108,9 +108,9 @@ void sanitize(char* input){
 		A char** carrying the separated tokens in each element of the array.
 */
 char** toExecArgs(char* inputString){
-	//TODO
+	int MAX = 256;
 	TOKENIZER *tokenizer;
-	char** args = calloc(256, 1);
+	char** args = calloc(MAX + 1, 1);
 	
 	tokenizer = init_tokenizer(inputString);
 	
@@ -118,5 +118,6 @@ char** toExecArgs(char* inputString){
 	while((args[i] = get_next_token(tokenizer)) != NULL){	
 		i++;	
 	}
+	args[MAX] = NULL;		//Make sure that array ends in NULL for bounding.
 	return args;
 }

@@ -2,6 +2,7 @@
 #define __UTILS_H__
 
 #include "tokenizer.h"
+#include "LinkedList.h"
 /*
 int len()
 	Description:
@@ -63,5 +64,22 @@ void sanitize(char* input);
 		A char** carrying the separated tokens in each element of the array.
 */
 char** toExecArgs(char* inputString);
+
+LinkedList* arrayToList(void** array, int size);
+
+void** listToArray(LinkedList* list);
+
+///////REDIRECTION RELATED//////
+int isRedirection(char** args);
+
+int isProperRedirection(char** args);
+
+int countRedirections(char** args);
+
+int redirectPositions(char** args);
+
+LinkedList* getRedirectionQueue(char** args);
+
+void executeRedirection(char** args);
 #endif
 

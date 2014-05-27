@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 		
 		//TODO Parse into arguments array here for execvp to use
 		char** arguments = toExecArgs(inputbuffer);
-		
+
 		int pid = fork();
 		if(!pid){
 		//Child: Execute.

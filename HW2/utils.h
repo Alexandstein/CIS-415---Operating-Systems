@@ -53,6 +53,7 @@ void sanitize()
 void sanitize(char* input);
 
 /*
+char** toExecArgs()
 	Description:
 		Takes a string and parses its contents into arguments usable by execvp(3).
 		
@@ -63,5 +64,9 @@ void sanitize(char* input);
 		A char** carrying the separated tokens in each element of the array.
 */
 char** toExecArgs(char* inputString);
+
+/*
+
+*/
 #endif
 
