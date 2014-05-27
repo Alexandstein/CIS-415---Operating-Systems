@@ -9,13 +9,8 @@ HW1/hello
 
 sandbox/hello
 
-sandbox/test.c
 
 sandbox/loop
-
-sandbox/test.c
-
-sandbox/test.c
 
 *.o
 
@@ -25,8 +20,9 @@ sandbox/test
 
 HW1/shell
 
-sandbox/test.c
-
 *.tgz
 
 *.txt
+
+sandbox/dorp
+sandbox/redirectOut

@@ -326,6 +326,26 @@ int LinkedList_len(LinkedList* list){
 }
 
 /*//////////////////////////////////////////////////////////////////////////*/
+/*FUNCTION: 																*/
+/*		LinkedList* LinkedList_reverse								  		*/
+/*Reverses a LinkedList														*/
+/*																			*/
+/*Args: 																	*/
+/*		LinkedList* list:													*/
+/*			LinkedList to check												*/
+/*Return:																	*/
+/*		Th reversed list													*/
+/*//////////////////////////////////////////////////////////////////////////*/
+LinkedList* LinkedList_reverse(LinkedList* list){
+	LinkedList* output = LinkedList_init();
+	void* buffer;
+	while((buffer = LinkedList_next(list)) != NULL){
+		LinkedList_queue(output, buffer);			//Reverse stack to get queue
+	}
+	return output;
+}
+
+/*//////////////////////////////////////////////////////////////////////////*/
 /*DESTRUCTOR: 																*/
 /*		void LinkedList_free								  				*/
 /*Frees a LinkedList from memory											*/

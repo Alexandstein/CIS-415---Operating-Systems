@@ -235,6 +235,19 @@ int LinkedList_isNext(LinkedList* list);
 int LinkedList_len(LinkedList* list);
 
 /*//////////////////////////////////////////////////////////////////////////*/
+/*FUNCTION: 																*/
+/*		LinkedList* LinkedList_reverse								  		*/
+/*Reverses a LinkedList														*/
+/*																			*/
+/*Args: 																	*/
+/*		LinkedList* list:													*/
+/*			LinkedList to check												*/
+/*Return:																	*/
+/*		Th reversed list													*/
+/*//////////////////////////////////////////////////////////////////////////*/
+LinkedList* LinkedList_reverse(LinkedList* list);
+
+/*//////////////////////////////////////////////////////////////////////////*/
 /*DESTRUCTOR: 																*/
 /*		void LinkedList_free								  				*/
 /*Frees a LinkedList from memory											*/
