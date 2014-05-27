@@ -25,13 +25,14 @@ To look for memory leaks...
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "LinkedList.h"
+#include "redirect.h"
 
 int main(int argc, char *argv[])
 {
 	LinkedList* dorp = LinkedList_init();
 	char* command = "python";
-	char* command1= "cat < dorp";
-	char* command2= "python --version > dorp";
+	char* command1= "cat < testing";
+	char* command2= "python --version > testing";
 	char** print;
 	
 	LinkedList_queue(dorp, command);
