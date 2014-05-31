@@ -156,7 +156,7 @@ int LinkedList_isEmpty(LinkedList* list);
 
 /*//////////////////////////////////////////////////////////////////////////*/
 /*FUNCTION: 																*/
-/*		void LinkedList_pushFromHead					  					*/
+/*		void LinkedList_queue							  					*/
 /*DESCRIPTION																*/
 /*		Pushes data from the head of the list								*/
 /*Args: 																	*/
@@ -167,12 +167,12 @@ int LinkedList_isEmpty(LinkedList* list);
 /*Return:																	*/
 /*		void																*/
 /*//////////////////////////////////////////////////////////////////////////*/
-void LinkedList_pushFromHead(LinkedList* list, void* input);
+void LinkedList_queue(LinkedList* list, void* input);
 
 /*//////////////////////////////////////////////////////////////////////////*/
 /*FUNCTION: 																*/
-/*		void* LinkedList_popFromHead						  				*/
-/*Pops data off from the head												*/
+/*		void* LinkedList_dequeue							  				*/
+/*Pops data off from the tail												*/
 /*																			*/
 /*Args: 																	*/
 /*		LInkedList* list:													*/
@@ -181,34 +181,6 @@ void LinkedList_pushFromHead(LinkedList* list, void* input);
 /*		Returns the popped data												*/
 /*//////////////////////////////////////////////////////////////////////////*/
 void* LinkedList_popFromHead(LinkedList* list);
-
-/*//////////////////////////////////////////////////////////////////////////*/
-/*FUNCTION: 																*/
-/*		void LinkedList_pushFromTail					  					*/
-/*DESCRIPTION																*/
-/*		Pushes data from the tail of the list								*/
-/*Args: 																	*/
-/*		LinkedList* list:													*/
-/*			The receiving list												*/
-/*		void* input:														*/
-/*			The data to be pushed onto `list`								*/
-/*Return:																	*/
-/*		void																*/
-/*//////////////////////////////////////////////////////////////////////////*/
-void LinkedList_pushFromTail(LinkedList* list, void* input);
-
-/*//////////////////////////////////////////////////////////////////////////*/
-/*FUNCTION: 																*/
-/*		void* LinkedList_popFromTail						  				*/
-/*Dequeues data from tail													*/
-/*																			*/
-/*Args: 																	*/
-/*		LInkedList* list:													*/
-/*			LinkedList to pop from											*/
-/*Return:																	*/
-/*		Returns the popped data												*/
-/*//////////////////////////////////////////////////////////////////////////*/
-void* LinkedList_popFromTail(LinkedList* list);
 
 /*//////////////////////////////////////////////////////////////////////////*/
 /*FUNCTION: 																*/
@@ -229,7 +201,7 @@ void LinkedList_resetCursor(LinkedList* list);
 /*Advance the cursor and return the data value								*/
 /*																			*/
 /*Args: 																	*/
-/*		LInkedList* list:													*/
+/*		LinkedList* list:													*/
 /*			LinkedList to manipulate										*/
 /*Return:																	*/
 /*		Returns the data of the passed over node							*/
@@ -242,7 +214,7 @@ void* LinkedList_next(LinkedList* list);
 /*Checks whether there exists a next node 									*/
 /*																			*/
 /*Args: 																	*/
-/*		LInkedList* list:													*/
+/*		LinkedList* list:													*/
 /*			LinkedList to check												*/
 /*Return:																	*/
 /*		1 if there is a next node. 0 otherwise								*/
@@ -250,12 +222,38 @@ void* LinkedList_next(LinkedList* list);
 int LinkedList_isNext(LinkedList* list);
 
 /*//////////////////////////////////////////////////////////////////////////*/
+/*FUNCTION: 																*/
+/*		int LinkedList_len									  				*/
+/*Checks size of LinkedList													*/
+/*																			*/
+/*Args: 																	*/
+/*		LinkedList* list:													*/
+/*			LinkedList to check												*/
+/*Return:																	*/
+/*		Size of list														*/
+/*//////////////////////////////////////////////////////////////////////////*/
+int LinkedList_len(LinkedList* list);
+
+/*//////////////////////////////////////////////////////////////////////////*/
+/*FUNCTION: 																*/
+/*		LinkedList* LinkedList_reverse								  		*/
+/*Reverses a LinkedList														*/
+/*																			*/
+/*Args: 																	*/
+/*		LinkedList* list:													*/
+/*			LinkedList to check												*/
+/*Return:																	*/
+/*		Th reversed list													*/
+/*//////////////////////////////////////////////////////////////////////////*/
+LinkedList* LinkedList_reverse(LinkedList* list);
+
+/*//////////////////////////////////////////////////////////////////////////*/
 /*DESTRUCTOR: 																*/
 /*		void LinkedList_free								  				*/
 /*Frees a LinkedList from memory											*/
 /*																			*/
 /*Args: 																	*/
-/*		LInkedList* list:													*/
+/*		LinkedList* list:													*/
 /*			LinkedList to delete											*/
 /*Return:																	*/
 /*		void																*/

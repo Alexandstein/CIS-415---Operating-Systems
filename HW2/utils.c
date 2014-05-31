@@ -1,5 +1,13 @@
 #include "utils.h"
 #include "tokenizer.h"
+#include "redirect.h"
+#include "LinkedList.h"
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+
 /*
 int len()
 	Description:
@@ -11,10 +19,8 @@ int len()
 		The number of characters in the string. (Not including \0)	
 */
 int len(const char* input){
-	int i = 0;
-	while(input[i] != '\0'){
-		i++;
-	}
+	int i;
+	for(i = 0; input[i] != NULL; i++){}
 	return i;
 }
 
@@ -120,4 +126,26 @@ char** toExecArgs(char* inputString){
 	}
 	args[MAX] = NULL;		//Make sure that array ends in NULL for bounding.
 	return args;
+}
+
+//Convert array to LinkedList
+LinkedList* arrayToList(void** array, int size){
+	LinkedList* output = LinkedList_init();
+	
+	for(int i = 0; i < size; i++){
+		LinkedList_queue(output, array[i]);
+	}
+	
+	return output;
+}
+
+//Convert LinkedLIst to array
+void** listToArray(LinkedList* list){
+	void** output = calloc(LinkedList_len(list) + 1,1);
+	void* buffer;
+	
+	for(int i = 0;(buffer = LinkedList_next(list)) != NULL; i++){
+		output[i] = buffer;
+	}
+	return output;
 }

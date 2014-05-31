@@ -130,9 +130,10 @@ Node* Node_append(Node* parent, Node* child)
 /*//////////////////////////////////////////////////////////////////////////*/
 void Node_free(Node* toDelete)
 {
-	toDelete->next = NULL;
-	free(toDelete->data);
-	free(toDelete->next);
+//	toDelete->next = NULL;
+//	if(toDelete->data != 0){
+//		free(toDelete->data);
+//	}
 	free(toDelete);
 
 	return;
@@ -177,7 +178,7 @@ int LinkedList_isEmpty(LinkedList* list){
 
 /*//////////////////////////////////////////////////////////////////////////*/
 /*FUNCTION: 																*/
-/*		void LinkedList_pushFromHead					  					*/
+/*		void LinkedList_queue						  						*/
 /*DESCRIPTION																*/
 /*		Pushes data from the head of the list								*/
 /*Args: 																	*/
@@ -188,7 +189,7 @@ int LinkedList_isEmpty(LinkedList* list){
 /*Return:																	*/
 /*		void																*/
 /*//////////////////////////////////////////////////////////////////////////*/
-void LinkedList_pushFromHead(LinkedList* list, void* input)
+void LinkedList_queue(LinkedList* list, void* input)
 {	
 	Node* toPush = Node_initWithInput(input);
 	
@@ -199,79 +200,14 @@ void LinkedList_pushFromHead(LinkedList* list, void* input)
 	}else{												//Not empty
 		Node_append(toPush, list->head);				//Link Nodes together
 		list->head = toPush;							//Replace the head with new Node
+		LinkedList_resetCursor(list);
 		return;
 	}
 }
 
 /*//////////////////////////////////////////////////////////////////////////*/
 /*FUNCTION: 																*/
-/*		void* LinkedList_popFromHead						  				*/
-/*Pops data off from the head												*/
-/*																			*/
-/*Args: 																	*/
-/*		LInkedList* list:													*/
-/*			LinkedList to pop from											*/
-/*Return:																	*/
-/*		Returns the popped data												*/
-/*//////////////////////////////////////////////////////////////////////////*/
-void* LinkedList_popFromHead(LinkedList* list)
-{
-	void* output;
-	Node* toDelete;
-	
-	if(LinkedList_isEmpty(list)){						//Check if list is empty
-		return NULL;									//Empty; return NULL
-	}else{												//List is not empty; continue
-		if(list->cursor == list->head){
-			LinkedList_next(list);						//If cursor is on head, advance one.	
-		}
-	
-		toDelete = list->head;
-		output = Node_getData(toDelete);
-		list->head = Node_getNext(list->head);
-		//TODO Deal with Cursor Pointers.
-		LinkedList_resetCursor(list);					//Set head to beginning.
-		
-		Node_free(toDelete);
-		return output;
-	}
-}
-
-/*//////////////////////////////////////////////////////////////////////////*/
-/*FUNCTION: 																*/
-/*		void LinkedList_pushFromTail					  					*/
-/*DESCRIPTION																*/
-/*		Pushes data from the tail of the list								*/
-/*Args: 																	*/
-/*		LinkedList* list:													*/
-/*			The receiving list												*/
-/*		void* input:														*/
-/*			The data to be pushed onto `list`								*/
-/*Return:																	*/
-/*		void																*/
-/*//////////////////////////////////////////////////////////////////////////*/
-void LinkedList_pushFromTail(LinkedList* list, void* input)
-{
-	Node* temp = list->cursor;							//Save cursor location
-	Node* toPush = Node_initWithInput(input);
-	
-	if(LinkedList_isEmpty(list)){						//Check if empty
-		list->head 	 = toPush;
-		list->cursor = toPush;
-		return;
-	}else{												//Not empty
-		while(LinkedList_isNext(list)){ 				//Iterate to end of list
-			LinkedList_next(list);
-		}
-		Node_append(list->cursor, toPush);
-		list->cursor = temp;							//Return cursor location
-		return;
-	}
-}
-
-/*//////////////////////////////////////////////////////////////////////////*/
-/*FUNCTION: 																*/
-/*		void* LinkedList_popFromTail						  				*/
+/*		void* LinkedList_dequeue							  				*/
 /*Dequeues data from tail													*/
 /*																			*/
 /*Args: 																	*/
@@ -280,12 +216,12 @@ void LinkedList_pushFromTail(LinkedList* list, void* input)
 /*Return:																	*/
 /*		Returns the popped data												*/
 /*//////////////////////////////////////////////////////////////////////////*/
-void* LinkedList_popFromTail(LinkedList* list)
+void* LinkedList_dequeue(LinkedList* list)
 {
 	Node* beforeNext = NULL;							//Keep track of node before cursor
 	Node* toDelete;										//Remember to free memory!
 	void* output;
-	
+
 	if(LinkedList_isEmpty(list)){						//Check if list is empty
 		return NULL;									//Empty; return NULL
 	}else{												//List is not empty; continue
@@ -305,6 +241,7 @@ void* LinkedList_popFromTail(LinkedList* list)
 		LinkedList_resetCursor(list);					//Reset cursor.
 
 		Node_free(toDelete);							//Clean up
+		printf("Output: %s\n", output);					//TODO DEBUG
 		return output;	
 	}
 }
@@ -345,7 +282,7 @@ void* LinkedList_next(LinkedList* list)
 	
 	void* output = Node_getData(list->cursor);
 	list->cursor = Node_getNext(list->cursor);
-	
+		
 	return output;
 }
 
@@ -369,6 +306,46 @@ int LinkedList_isNext(LinkedList* list)
 }
 
 /*//////////////////////////////////////////////////////////////////////////*/
+/*FUNCTION: 																*/
+/*		int LinkedList_len									  				*/
+/*Checks size of LinkedList													*/
+/*																			*/
+/*Args: 																	*/
+/*		LinkedList* list:													*/
+/*			LinkedList to check												*/
+/*Return:																	*/
+/*		Size of list														*/
+/*//////////////////////////////////////////////////////////////////////////*/
+int LinkedList_len(LinkedList* list){
+	Node* saved = list->cursor;				//Save cursor position
+	
+	int i;
+	for(i = 0; LinkedList_next(list); i++){}
+	
+	return i;
+}
+
+/*//////////////////////////////////////////////////////////////////////////*/
+/*FUNCTION: 																*/
+/*		LinkedList* LinkedList_reverse								  		*/
+/*Reverses a LinkedList														*/
+/*																			*/
+/*Args: 																	*/
+/*		LinkedList* list:													*/
+/*			LinkedList to check												*/
+/*Return:																	*/
+/*		Th reversed list													*/
+/*//////////////////////////////////////////////////////////////////////////*/
+LinkedList* LinkedList_reverse(LinkedList* list){
+	LinkedList* output = LinkedList_init();
+	void* buffer;
+	while((buffer = LinkedList_next(list)) != NULL){
+		LinkedList_queue(output, buffer);			//Reverse stack to get queue
+	}
+	return output;
+}
+
+/*//////////////////////////////////////////////////////////////////////////*/
 /*DESTRUCTOR: 																*/
 /*		void LinkedList_free								  				*/
 /*Frees a LinkedList from memory											*/
@@ -381,8 +358,9 @@ int LinkedList_isNext(LinkedList* list)
 /*//////////////////////////////////////////////////////////////////////////*/
 void LinkedList_free(LinkedList* list)
 {
-	while(list->cursor != NULL){			//Keep iterating through to delete all nodes.
-		free(LinkedList_popFromTail(list));
+	Node* node;
+	while((node = LinkedList_next(list)) != NULL){			//Keep iterating through to delete all nodes.
+//		free(LinkedList_next(list));
 	}
 	free(list);								//Finally, the list itself
 	

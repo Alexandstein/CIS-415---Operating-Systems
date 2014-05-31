@@ -2,6 +2,8 @@
 #define __UTILS_H__
 
 #include "tokenizer.h"
+#include "LinkedList.h"
+
 /*
 int len()
 	Description:
@@ -53,7 +55,6 @@ void sanitize()
 void sanitize(char* input);
 
 /*
-char** toExecArgs()
 	Description:
 		Takes a string and parses its contents into arguments usable by execvp(3).
 		
@@ -65,8 +66,8 @@ char** toExecArgs()
 */
 char** toExecArgs(char* inputString);
 
-/*
+LinkedList* arrayToList(void** array, int size);
 
-*/
+void** listToArray(LinkedList* list);
 #endif
 

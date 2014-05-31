@@ -1,7 +1,7 @@
-CFLAGS=-g -Wall
+CFLAGS=-g -Wall -std=c99 -g
 CC=gcc
-SRCS=tokenizer.c shell.c utils.c
-OBJS=tokenizer.o shell.o utils.o
+SRCS= shell.c tokenizer.c utils.c LinkedList.c redirect.c
+OBJS= shell.o tokenizer.o utils.o LinkedList.o redirect.o
 LDFLAGS=
 LIBS=
 
@@ -14,4 +14,4 @@ shell: $(OBJS)
 	$(CC) $(LDFLAGS) $(LIBS) -o shell $(OBJS)
 
 clean:
-	rm -f *.o shell
+	rm -f *.o test

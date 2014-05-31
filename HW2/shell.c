@@ -3,6 +3,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+#include "LinkedList.h"
+#include "redirect.h"
 #include "tokenizer.h"
 #include "utils.h"
 
@@ -37,7 +43,12 @@ int main(int argc, char *argv[])
 		int pid = fork();
 		if(!pid){
 		//Child: Execute.
-			execvp(arguments[0], arguments);
+			if(countRedirections(arguments)){		//There are redirections
+				executeRedirection(arguments);
+				exit(0);
+			}else{
+				execvp(arguments[0], arguments);
+			}
 			perror(inputbuffer);
 			exit(0);
 		}else if(pid > 0){
