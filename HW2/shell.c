@@ -11,6 +11,7 @@
 #include "redirect.h"
 #include "tokenizer.h"
 #include "utils.h"
+#include "modHash.h"
 
 //Some constants
 static const void* PROMPT_MESSAGE = "Enter a command.\n";
@@ -21,9 +22,13 @@ static const void* ERROR = "OH NOES! A thing went wrong. :CCC\n";
 
 //Global variable in order to keep track of child
 int childProcess = 0;
+ModHash* procTable;
+
+//Execution wrapper
 
 int main(int argc, char *argv[])
 {
+	procTable = ModHash_init(1024);
 	int status;
 	
 	write(STDOUT_FILENO, PROMPT_MESSAGE, len(PROMPT_MESSAGE));
@@ -37,7 +42,7 @@ int main(int argc, char *argv[])
 		read(STDIN_FILENO, inputbuffer, INPUT_SIZE);
 		sanitize(inputbuffer);
 		
-		//TODO Parse into arguments array here for execvp to use
+		//Parge into arguments array
 		char** arguments = toExecArgs(inputbuffer);
 
 		int pid = fork();
@@ -52,12 +57,9 @@ int main(int argc, char *argv[])
 			perror(inputbuffer);
 			exit(0);
 		}else if(pid > 0){
-		//Parent: Wait for child.
+			//Parent: Wait for child.
 			//Clear buffer.
-			free(inputbuffer);
-			childProcess = pid;
-			wait(&status);
-			//Cancel alarm.
+			free(inputbuffer);			
 		}else{
 		//Error
 			free(inputbuffer);

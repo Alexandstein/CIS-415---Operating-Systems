@@ -1,7 +1,7 @@
 CFLAGS=-g -Wall -std=c99 -g
 CC=gcc
-SRCS= shell.c tokenizer.c utils.c LinkedList.c redirect.c
-OBJS= shell.o tokenizer.o utils.o LinkedList.o redirect.o
+SRCS= shell.c tokenizer.c utils.c LinkedList.c redirect.c modHash.c
+OBJS= shell.o tokenizer.o utils.o LinkedList.o redirect.o modHash.o
 LDFLAGS=
 LIBS=
 

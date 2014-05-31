@@ -1,4 +1,10 @@
 /*
+TODO
+	:Use waitpid in the main shell to selectively choose with groups or children to wait on
+	:	negative nums for groups
+	:For Background procs, make it so wait() doesn't happen
+
+
 ===GDB NOTES===
 Compile with gcc -g <file.c>
 Run file with gdb <program file>
@@ -22,24 +28,34 @@ dup2(Source fd, fd you want to have go to the same place);
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
-#include "tokenizer.h"
-#include "utils.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
+
+#include "tokenizer.h"
+#include "utils.h"
 #include "LinkedList.h"
 #include "redirect.h"
 #include "modHash.h"
+#include "process.h"
+#include "errCheck.h"
 
 int main(int argc, char *argv[])
 {
-	ModHash* hash = ModHash_init(1000);
-	int* moo = calloc(1, sizeof(int));
-	*moo = 90099;
-	ModHash_put(hash, 1009, moo);
-	ModHash_free(hash, 0);
-	printf("%d\n", errno);	
+	char* command = "python";
+	char* command1= "cat < testing";
+	char* command2= "Python --version&";
+	char** args = toExecArgs(command2);
+	
+	printf("%d\n", isBackgroundCommand(args));
+	
+	int testFile = open("fakefile.txt", O_RDWR, 0644);
+	if(fileNotFoundErr()){
+		printf("%d: Ya dun goof'd\n", errno);	
+		perror(0);
+	}
+	
 	return 0;
 	////////
 	int moop = open("nope", O_RDWR | O_CREAT, 0644);
@@ -52,9 +68,6 @@ int main(int argc, char *argv[])
 	return;
 	/////
 	LinkedList* dorp = LinkedList_init();
-	char* command = "python";
-	char* command1= "cat < testing";
-	char* command2= "python --version > testing";
 	char** print;
 	
 	LinkedList_queue(dorp, command);
@@ -63,7 +76,7 @@ int main(int argc, char *argv[])
 	
 //	print = (char*)LinkedList_dequeue(dorp);
 		
-	char** args = toExecArgs(command1);
+	args = toExecArgs(command1);
 	
 	printf("Redirect?: %d\n", isProperRedirection(args));
 	LinkedList* tester = getRedirectionQueue(args);
