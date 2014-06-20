@@ -3,7 +3,6 @@
 
 #include "tokenizer.h"
 #include "LinkedList.h"
-
 /*
 int len()
 	Description:
@@ -15,6 +14,18 @@ int len()
 		The number of characters in the string. (Not including \0)	
 */
 int len(const char* input);
+
+/*
+int len2()
+	Description:
+		Takes in string array and returns its length.
+	args:
+		char* input 
+			The input to be measured
+	return:
+		The number of characters in the string. (Not including \0)	
+*/
+int len2(const char** input);
 
 /*
 int toDigit()
@@ -65,6 +76,17 @@ void sanitize(char* input);
 		A char** carrying the separated tokens in each element of the array.
 */
 char** toExecArgs(char* inputString);
+
+/*
+	Description:
+		Compares two strings and returns true if they are equal
+	args:
+		char* str1, str2
+			The strings to be compared
+	return:
+		1 if equal, 0 otherwise	
+*/
+int compareStrings(char* str1, char* str2);
 
 LinkedList* arrayToList(void** array, int size);
 

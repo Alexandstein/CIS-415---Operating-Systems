@@ -18,8 +18,24 @@ int len()
 	return:
 		The number of characters in the string. (Not including \0)	
 */
-int len(const char* input){
-	int i;
+int len(const char* input){ 
+	int i = 0;
+	for(i = 0; input[i] != NULL; i++){}
+	return i;
+}
+
+/*
+int len2()
+	Description:
+		Takes in string array and returns its length.
+	args:
+		char* input 
+			The input to be measured
+	return:
+		The number of characters in the string. (Not including \0)	
+*/
+int len2(const char** input){
+	int i = 0;
 	for(i = 0; input[i] != NULL; i++){}
 	return i;
 }
@@ -105,6 +121,28 @@ void sanitize(char* input){
 
 /*
 	Description:
+		Compares two strings and returns true if they are equal
+	args:
+		char* str1, str2
+			The strings to be compared
+	return:
+		1 if equal, 0 otherwise	
+*/
+int compareStrings(char* str1, char* str2){
+	if(len(str1) != len(str2)){		//Not equal if not the same length
+		return 0;
+	}else{
+		for(int i = 0; i < len(str1); i++){
+			if(str1[i] != str2[i]){
+				return 0;
+			}
+		}
+		return 1;
+	}
+}
+
+/*
+	Description:
 		Takes a string and parses its contents into arguments usable by execvp(3).
 		
 	args:
@@ -116,7 +154,7 @@ void sanitize(char* input){
 char** toExecArgs(char* inputString){
 	int MAX = 256;
 	TOKENIZER *tokenizer;
-	char** args = calloc(MAX + 1, 1);
+	char** args = calloc(MAX + 1, sizeof(*args));
 	
 	tokenizer = init_tokenizer(inputString);
 	
@@ -124,7 +162,7 @@ char** toExecArgs(char* inputString){
 	while((args[i] = get_next_token(tokenizer)) != NULL){	
 		i++;	
 	}
-	args[MAX] = NULL;		//Make sure that array ends in NULL for bounding.
+	args[MAX] = 0;		//Make sure that array ends in NULL for bounding.
 	return args;
 }
 

@@ -9,10 +9,10 @@
 			Size of the modular table
 */
 ModHash* ModHash_init(int size){
-	ModHash* output = calloc(1,1);
+	ModHash* output = calloc(1,sizeof(*output));
 	
 	output->size = size;
-	output->table = calloc(size,1);
+	output->table = calloc(size,sizeof(void*));
 	
 	return output;
 }
@@ -52,7 +52,7 @@ void ModHash_put(ModHash* table, int key, void* value){
 */
 void* ModHash_get(ModHash* table, int key){
 	key = key%table->size;
-	return table->table[key];
+	return (table->table)[key];
 }
 
 /*

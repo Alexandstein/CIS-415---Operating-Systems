@@ -44,3 +44,23 @@ HW2/test.c
 sandbox/Noop
 
 sandbox/nope
+
+assign3/clipboard
+
+*.gz
+
+sandbox/boop
+
+sandbox/stderr
+
+sandbox/stdout
+
+sandbox/valgind
+
+sandbox/valgrind
+
+HW2/boops
+
+assign3/smsasim
+
+HW2/HW/shell

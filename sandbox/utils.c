@@ -34,7 +34,7 @@ int len2()
 	return:
 		The number of characters in the string. (Not including \0)	
 */
-int len2(const char** input){ 
+int len2(const char** input){
 	int i = 0;
 	for(i = 0; input[i] != NULL; i++){}
 	return i;
@@ -154,7 +154,7 @@ int compareStrings(char* str1, char* str2){
 char** toExecArgs(char* inputString){
 	int MAX = 256;
 	TOKENIZER *tokenizer;
-	char** args = calloc(MAX + 1, 1);
+	char** args = calloc(MAX + 1, sizeof(*args));
 	
 	tokenizer = init_tokenizer(inputString);
 	
@@ -162,7 +162,7 @@ char** toExecArgs(char* inputString){
 	while((args[i] = get_next_token(tokenizer)) != NULL){	
 		i++;	
 	}
-	args[MAX] = NULL;		//Make sure that array ends in NULL for bounding.
+	args[MAX] = 0;		//Make sure that array ends in NULL for bounding.
 	return args;
 }
 

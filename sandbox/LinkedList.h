@@ -34,6 +34,7 @@ typedef struct LinkedList{
 	Node* head;
 	Node* cursor;
 } LinkedList;
+#endif
 
 /*Node FUNCTIONS*/
 /*//////////////////////////////////////////////////////////////////////////*/
@@ -258,5 +259,3 @@ LinkedList* LinkedList_reverse(LinkedList* list);
 /*		void																*/
 /*//////////////////////////////////////////////////////////////////////////*/
 void LinkedList_free(LinkedList* list);
-
-#endif

@@ -1,0 +1,58 @@
+Alexander Stein
+CIS 415: Operating Systems
+Project 2
+NOTE:
+	USE TWO GRACE DAYS
+
+Included files
+	README
+	shell.c
+		-Main shell file.
+		-Also contains handlers and useful globals which the handlers share with main()
+	process.c
+		-The Process struct, which is used for keeping info on the processes.
+		-Functions relevant to processes
+	modHash.c
+		-A modular hash table data structure used for storing the different processes.
+	redirect.c
+		-Functions pertaining to redirections and pipes.
+	LinkedList.c
+		-A modification of a Linked List data structure I implemented myself a while back.
+		-Also used to simulate stack functionality.
+	utils.c
+		-Miscellaneous useful functions that aren't categorized.
+
+Extra Credit Answers
+	-You can tell the difference between system call and library function by seeing which
+		manual they belong to. Systems called belong in man 2.
+	-The disadvantage of synchronous job control is that you have to have specified
+	 waiting periods where your special commands can go through, or you can check on
+	 job status. With asynchronous action can happyen anytime as long as the signals 
+	 aren't being blocked.
+
+Compilation and execution
+	To compile, simply use `make`. `make clean` conversely get rid of all products.
+	To execute, enter `./shell`
+
+Overview of work accomplished
+	Learned basic control concepts and how to deal with asynchronous signalling.
+	I wasn't able to get as much done as I had hoped that I would because I had to take
+	time off from the project to allocate to other similarly time-consuming classes.
+	
+	Most of the time was spent looking up information online to understand how
+	things go together. Time was also spent having to deal with any quirks specific to 
+	the system being run, since some conventions used online did not work on the the
+	Ubuntu VM. (Sigaction had some strange system-specific kinks that took 
+	research to sort out.)
+	
+Notes
+	Wasn't able to fully complete project.	
+
+Hours
+	Spent about an 6 hours per week pre-progress assignment. Increased to over 25 hours 
+	per week around week 8 to make up for time lost to MATH 458 midterms + assignments.
+	Most of time spent experimenting
+
+Attributions
+	Basic format for system call creation and (assumed) conventions studied from
+		http://seshagiriprabhu.wordpress.com/2012/11/15/adding-a-simple-system-call-to-the-linux-3-2-0-kernel-from-scratch/.

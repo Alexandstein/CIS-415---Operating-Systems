@@ -6,8 +6,9 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <errno.h>
 
-/////////////////REDIRECTION RELATED/////////////
+/////////////////REDIRECTION RELATED///////////////////
 /*
 int isRedirection()
 	Description:
@@ -19,7 +20,8 @@ int isRedirection()
 		1 if redirections, 0 elsewise.
 */
 int isRedirection(char** args){
-	for(int i = 0; args[i] != NULL; i++){
+	
+	for(int i = 0; i < len2(args); i++){
 		if(args[i][0] == '>' || args[i][0] == '<'){
 			return 1;
 		}else{
@@ -40,12 +42,12 @@ int isProperRedirection()
 		1 if true, 0 if false.
 */
 int isProperRedirection(char** args){
-	int size = 0;//len(args);
+	int size = len2(args);
 	if(countRedirections(args) > 2){
 		return 0;
 	}
-	if(args[0][0] == '<' || args[0][0] == '>')
-//	   args[size - 1][0] == '<' || args[1 - size][0] == '>')
+	if(compareStrings(args[0],"<") || compareStrings(args[0],">") || 
+	   compareStrings(args[size - 1],"<") || compareStrings(args[size - 1],">"))
 	{
 		return 0;
 	}
@@ -95,7 +97,7 @@ LinkedList* getRedirectionQueue(char** args){
 	LinkedList* output = LinkedList_init();
 
 	int j = 0;
-	char** buffer = calloc(128, 1);
+	char** buffer = calloc(128, sizeof(*buffer));
 	for(int i = 0; args[i] != NULL; i++){
 		if(args[i][0] != '>' && args[i][0] != '<'){
 			buffer[j] = args[i];					//Start collecting args
@@ -103,12 +105,12 @@ LinkedList* getRedirectionQueue(char** args){
 		}else{										//Redirect detected. Queue.
 			LinkedList_queue(stack, buffer);
 			
-			char** redirect = calloc(1,1);			//Add the redirect symbol to the queue
+			char** redirect = calloc(1,sizeof(*redirect));			//Add the redirect symbol to the queue
 			redirect[0] = args[i];
 			LinkedList_queue(stack, redirect);
 			
 			j = 0;
-			buffer = calloc(128, 1);				//Make new args collector
+			buffer = calloc(128, sizeof(*buffer));				//Make new args collector
 		}
 	}
 	if(buffer){
@@ -124,7 +126,7 @@ void executeRedirection()
 	Description:
 		Performs a redirection using the arguments passed in.
 */
-void executeRedirection(char** args){
+void executeRedirection(char** args, int isBackground){
 	if(!isProperRedirection(args)){ //Error!
 		exit(-1);
 	}
@@ -133,8 +135,8 @@ void executeRedirection(char** args){
 	char** buffer = NULL;
 	LinkedList* arguments= getRedirectionQueue(args);
 	
-	char*** commands = calloc(numOfRedirects + 2, 1);
-	char* redirects= calloc(numOfRedirects + 1, 1);
+	char*** commands = calloc(numOfRedirects + 2, sizeof(*commands));
+	char* redirects= calloc(numOfRedirects + 1, sizeof(redirects));
 	
 	int i = 0;
 	int j = 0;
@@ -150,8 +152,8 @@ void executeRedirection(char** args){
 	
 	char** executableIn = NULL;				//Recieved input
 	char** executableOut= NULL;				//Sends input out
-	char** filesIn		= calloc(numOfRedirects + 1, 1);	//Recieving
-	char** filesOut		= calloc(numOfRedirects + 1, 1);	//Sending
+	char** filesIn		= calloc(numOfRedirects + 1, sizeof(*filesIn));	//Recieving
+	char** filesOut		= calloc(numOfRedirects + 1, sizeof(*filesIn));	//Sending
 	
 	//Sort into in/out
 	i = 0;									//Files in cursor
@@ -171,10 +173,20 @@ void executeRedirection(char** args){
 	if(!pid){									//Redirects data out
 		fflush(0);
 		if(executableOut){						//Check if executable exists
+			int outCopy = open("stdout", O_RDWR | O_CREAT | O_TRUNC, 0644);	//Make fd copies
+			int errCopy = open("stderr", O_RDWR | O_CREAT | O_TRUNC, 0644);
+			dup2(STDERR_FILENO, outCopy);
+			dup2(STDERR_FILENO, errCopy);
+			
 			dup2(redirectOut, STDOUT_FILENO);	//Use redirectOut for stdout.
 			dup2(redirectOut, STDERR_FILENO);
+			
 //			printf("Bloop: %d\n", 9);
 			execvp(executableOut[0], executableOut);
+			
+			dup2(outCopy, STDOUT_FILENO);	//Recover fds if something goes wrong somehow
+			dup2(errCopy, STDERR_FILENO);
+			exit(-1);
 		}else if(filesOut[0]){					//Else, get file
 			char** buffer = calloc(1024 + 1, 1);
 //			dup2(redirectOut, STDOUT_FILENO);
@@ -188,7 +200,7 @@ void executeRedirection(char** args){
 		waitpid(pid, &status, 0);
 		fflush(0);
 		dup2(redirectOut, STDIN_FILENO); 
-		char** buffer = calloc(1024 + 1, 1);
+		char** buffer = calloc(1024 + 1, sizeof(*buffer));
 		read(STDIN_FILENO, buffer, 1024);
 		if(executableIn){
 			execvp(executableIn[0], executableIn);
@@ -199,4 +211,133 @@ void executeRedirection(char** args){
 		}
 		free(buffer);
 	}
+}
+
+//////////////////PIPE RELATED//////////////////
+int isPipe(char** args){
+	for(int i = 0; args[i] != NULL; i++){
+		if(args[i][0] == '|'){
+			return 1;
+		}else{
+			continue;
+		}
+	}
+	return 0;	
+}
+
+int isProperPipe(char** args){
+	int size = len2(args);
+	if(countPipes(args) != 1){	//Only a single pipe symbol for 2-stage pipeline
+		return 0;
+	}
+	if(compareStrings(args[0], "|")|| compareStrings(args[size - 1], "|")){
+		return 0;				//Make sure pipes aren't in front or back.
+	}
+	return 1;
+}
+
+int countPipes(char** args){
+	int count = 0;
+	
+	for(int i = 0; args[i] != NULL; i++){
+		if(args[i][0] == '|'){
+			count++;
+		}else{
+			continue;
+		}
+	}
+	return count;
+}
+
+LinkedList* getPipeQueue(char** args){
+	if(!isProperPipe(args)){
+		return NULL;
+	}
+	LinkedList* stack = LinkedList_init();
+	LinkedList* output = LinkedList_init();
+	
+	int j = 0;
+	char** buffer = calloc(128, sizeof(*buffer));
+	for(int i = 0; args[i] != NULL; i++){
+		if(args[i][0] != '|'){
+			buffer[j] = args[i];					//Start collecting args
+			j++;
+		}else{										//Pipe detected. Queue.
+			LinkedList_queue(stack, buffer);
+			
+			char** pipeline = calloc(1,sizeof(*pipeline));			//Add the pipeline symbol to the queue
+			pipeline[0] = args[i];
+			LinkedList_queue(stack, pipeline);
+			j = 0;
+			buffer = calloc(128, sizeof(*buffer));				//Make new args collector
+		}
+	}
+	if(buffer){
+		LinkedList_queue(stack, buffer);				//Edge case. Final queue
+	}
+	output = LinkedList_reverse(stack);				//Reverse stack to get queue
+	LinkedList_free(stack);
+	
+	return output;
+
+}
+
+void executePipe(char** args, int isBackground, int pgid){
+	setpgid(getpid(), pgid);
+	if(!isProperPipe(args)){ //Error!
+		printf("Error: Malformed pipe command.\n");
+		exit(-1);
+	}
+	int status;
+	int numOfPipes = 1;
+	char** buffer = NULL;
+	LinkedList* arguments= getPipeQueue(args);
+	
+	//Get boths sides of pipe
+	char** leftSide = LinkedList_next(arguments);
+	LinkedList_next(arguments);
+	char** rightSide = LinkedList_next(arguments);	
+	
+	//Check for errors
+	if(isRedirection(rightSide)){
+		if(!isProperRedirection(rightSide)){
+			printf("Error: Malformed redirection command.\n");
+			exit(-1);
+		}
+	}
+	if(isRedirection(leftSide)){
+		if(!isProperRedirection(leftSide)){
+			printf("Error: Malformed redirection command.\n");
+			exit(-1);
+		}
+	}
+	
+	//Make pipe
+	int fd[2];
+	pipe(fd);	
+	int pid = fork();
+    if (pid == -1) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    }
+    if (!pid){   
+		close(fd[1]);
+		dup2(fd[0], STDOUT_FILENO);
+		if(isRedirection(leftSide)){
+			executeRedirection(leftSide, isBackground);
+		}else{
+			execvp(leftSide[0], leftSide);
+		}
+		exit(0);
+    }else{            
+		close(fd[0]);         
+		waitpid(pid, &status, 0);
+		dup2(fd[1], STDIN_FILENO);
+		if(isRedirection(rightSide)){
+			executeRedirection(rightSide, isBackground);
+		}else{
+			execvp(rightSide[0], rightSide);
+		}
+		exit(0);
+    }
 }

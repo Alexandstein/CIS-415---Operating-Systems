@@ -15,6 +15,17 @@ int redirectPositions(char** args);
 
 LinkedList* getRedirectionQueue(char** args);
 
-void executeRedirection(char** args);
+void executeRedirection(char** args, int isBackground);
+
+////////PIPE RELATED//////////////
+int isPipe(char** args);
+
+int isProperPipe(char** args);
+
+int countPipes(char** args);
+
+LinkedList* getPipeQueue(char** args);
+
+void executePipe(char** args, int isBackground, int pgid);
 
 #endif
