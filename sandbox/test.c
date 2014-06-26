@@ -90,13 +90,37 @@ static void handleTerm(int sig, siginfo_t* siginfo)
 
 int main(int argc, char *argv[])
 {
-	table = ModHash_init(64);
-	
 	char* command = "python";
-	char* command1= "cat < testing";
-	char* command2= "python --version | cat > boop";
-	char** args = toExecArgs(command2);
-	char** args2 = toExecArgs(command1);
+	char* command1= "python --version";
+	char* command2= "cat > boop.txt";
+	char** args = toExecArgs(command1);
+	char** args2 = toExecArgs(command2);
+	
+	int status;
+	int fd[2];
+    pipe(fd);
+	int id = fork();
+
+	if(!id){										//Writing end
+		close(fd[0]);
+		dup2(fd[1], STDOUT_FILENO);
+		dup2(fd[1], STDERR_FILENO);
+		execvp(args[0], args);
+		exit(0);
+	}else{											//Reading end
+		char* buf = (char*)calloc(100, sizeof(*buf));
+		wait(&status);
+		close(fd[1]);
+		dup2(fd[0], STDIN_FILENO);
+		executeRedirection(args2, 0);
+//		read(fd[0], buf, 50);
+//		printf("Test: %s\n", buf);
+	}
+	
+	return 0;
+	/*
+	table = ModHash_init(64);
+
 	int stat = 1;	
 	
 	printf("Redirect?: %d\n", isProperRedirection(args2));
@@ -113,7 +137,6 @@ int main(int argc, char *argv[])
 		}
 	}
 		
-	return 0;
 	/*
 	
 	struct sigaction sa;

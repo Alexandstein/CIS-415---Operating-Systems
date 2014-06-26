@@ -173,9 +173,16 @@ void testing(){
 	unsigned char* buffer = calloc(SMSA_BLOCK_SIZE * 5, sizeof(*buffer));
 	unsigned char* input  = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 	unsigned char* input2 = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-	smsa_vwrite(test, 450, input);
-	smsa_vwrite(test + 1, 258, input2);
-	smsa_vread(test, 450, buffer);
+	smsa_vwrite(test, 400, input);
+//	smsa_vwrite(test + 1, 258, input2);
+	smsa_print(250, 25);
+	free(buffer);
+}
+
+//Print region of disk for testing reasons.
+void smsa_print(SMSA_VIRTUAL_ADDRESS start, int len){
+	unsigned char* buffer = calloc(SMSA_BLOCK_SIZE * 10, sizeof(*buffer));
+	smsa_vread(start, len, buffer);
 	logMessage(16, buffer);
 	free(buffer);
 }
@@ -240,7 +247,6 @@ int smsa_vunmount( void )  {
 int smsa_vread( SMSA_VIRTUAL_ADDRESS addr, uint32_t len, unsigned char *buf ) {
 	logMessage(16, "Read of length: %d at addr %d\n", len, addr);
 	
-	
 	int i = 0;
 	int status = 0;
 	int offset = addr % SMSA_BLOCK_SIZE;
@@ -294,7 +300,7 @@ int smsa_vwrite( SMSA_VIRTUAL_ADDRESS addr, uint32_t len, unsigned char *buf )  
 	offsetBuffer = calloc(numOfBlocks*SMSA_BLOCK_SIZE + 1, sizeof(*offsetBuffer));
 	
 	opRead(addr, offsetBuffer, 1);			//Preload last and first blocks for splicing
-	opRead(addr + (numOfBlocks-2)*SMSA_BLOCK_SIZE, offsetBuffer, 1);			
+	opRead((numOfBlocks-1)*SMSA_BLOCK_SIZE, offsetBuffer + (numOfBlocks-1)*SMSA_BLOCK_SIZE, 1);			
 	
 	
 	//Copy buffer over, but with offset

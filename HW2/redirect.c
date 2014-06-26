@@ -191,8 +191,13 @@ void executeRedirection(char** args, int isBackground){
 //			dup2(redirectOut, STDOUT_FILENO);
 			int out = open(filesOut[0], O_RDONLY, 0644);
 			read(out, buffer, 1024);
-//			printf("Boop: %s\n", filesOut[0]);
 			write(STDOUT_FILENO, buffer, 1024);
+			//Free memory
+			free(buffer);
+			for(int i = 0; i < numOfRedirects+2; i++){
+				free(commands[i]);
+			}
+			free(commands);
 		}
 		exit(0);
 	}else if(pid > 0){							//Takes in input
@@ -208,7 +213,13 @@ void executeRedirection(char** args, int isBackground){
 			read(in, buffer, 1024);
 			write(in, buffer, 1024);
 		}
+		//Free memory
 		free(buffer);
+		for(int i = 0; i < numOfRedirects+2; i++){
+			free(commands[i]);
+		}
+		free(commands);
+		free(redirects);
 	}
 }
 
@@ -226,10 +237,12 @@ int isPipe(char** args){
 
 int isProperPipe(char** args){
 	int size = len2(args);
+	
 	if(countRedirections(args) != 1){
 		return 0;
 	}
-	if(args[0][0] == '|' || args[1 - size][0] == '|')
+	
+	if(args[0][0] == '|' || args[size - 1][0] == '|')
 	{
 		return 0;
 	}
@@ -277,11 +290,68 @@ LinkedList* getPipeQueue(char** args){
 		LinkedList_queue(stack, buffer);				//Edge case. Final queue
 	}
 	output = LinkedList_reverse(stack);				//Reverse stack to get queue
-	LinkedList_free(stack);
+	free(stack);
 	return output;
 
 }
 
 void executePipe(char** args, int isBackground, int pgid){
-
+	setpgid(getpid(), pgid);
+	if(!isProperPipe(args)){ //Error!
+		printf("Error: Malformed pipe command.\n");
+		exit(-1);
+	}
+	int status;
+	int numOfPipes = 1;
+	char** buffer = NULL;
+	LinkedList* arguments= getPipeQueue(args);
+	
+	//Get boths sides of pipe
+	char** leftSide = LinkedList_next(arguments);
+	LinkedList_next(arguments);
+	char** rightSide = LinkedList_next(arguments);	
+	
+	//Check for errors
+	if(isRedirection(rightSide)){
+		if(!isProperRedirection(rightSide)){
+			printf("Error: Malformed redirection command.\n");
+			exit(-1);
+		}
+	}
+	if(isRedirection(leftSide)){
+		if(!isProperRedirection(leftSide)){
+			printf("Error: Malformed redirection command.\n");
+			exit(-1);
+		}
+	}
+	
+	//Make pipe
+	int fd[2];
+	pipe(fd);	
+	int pid = fork();
+    if (pid == -1) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    }
+    if (!pid) {   								//Write end
+		close(fd[0]);
+		dup2(fd[1], STDOUT_FILENO);
+		dup2(fd[1], STDERR_FILENO);
+		if(isRedirection(leftSide)){
+			executeRedirection(leftSide, isBackground);
+		}else{
+			execvp(leftSide[0], leftSide);
+		}
+		exit(0);
+    }else{            							//Read end
+		close(fd[1]);         
+		waitpid(pid, &status, 0);
+		dup2(fd[0], STDIN_FILENO);
+		if(isRedirection(rightSide)){
+			executeRedirection(rightSide, isBackground);
+		}else{
+			execvp(rightSide[0], rightSide);
+		}
+		exit(0);
+    }
 }

@@ -112,6 +112,9 @@ void sanitize()
 */
 void sanitize(char* input){
 	int i = 0;
+	if(input == 0 || input[0] == 0){
+		return;
+	}
 	while(input[i] != '\n'){
 		i++;
 	}
@@ -163,6 +166,7 @@ char** toExecArgs(char* inputString){
 		i++;	
 	}
 	args[MAX] = 0;		//Make sure that array ends in NULL for bounding.
+	free_tokenizer(tokenizer);
 	return args;
 }
 

@@ -29,8 +29,14 @@ static const void* ERROR = "OH NOES! A thing went wrong. :CCC\n";
 //Declare process table and critical section mask as global so handlers can access it.
 ModHash* table;
 sigset_t mask_CS;
+//Mask for child processes only
+sigset_t mask_child;
 //Declare printing queue
 LinkedList* printQueue;
+//Most recent processes in foreground, backgroun, and stopped
+static pid_t recent_fg;
+static pid_t recent_bg;
+static pid_t recent_stop;
 
 //Handlers
 static void handleChild(int sig, siginfo_t* siginfo)
@@ -47,18 +53,23 @@ static void handleChild(int sig, siginfo_t* siginfo)
 	sigprocmask(SIG_UNBLOCK,&mask_CS,0);			//CRITICAL SECTION: Exit
 }
 
+static void handleStop(int sig, siginfo_t* siginfo)
+{	
+	//TODO
+	printf("STOP >:( \n");
+}
+
 static void procDebugger(int sig, siginfo_t* siginfo)
 {
 	Process* p;
 	int status;
-	printf("Child term. detected\n");
-	wait(&status);
-	pid_t pid = siginfo->si_pid;
-	p = (Process*)ModHash_get(table, pid);
-	printf("Completed Child %d: %s\n", p->pid, p->name);
-	printf("%d's execution group is %d\n", pid, p->group);
-	perror(0);
-		
+	if(recent_bg){
+		p = (Process*)ModHash_get(table, recent_bg);
+		printf("Stopping Child %d: %s\n", p->pid, p->name);
+		kill(recent_bg, SIGTSTP);
+	}else{
+		printf("\nError: No recent jobs to stop.\n");
+	}	
 	//Iterate through table to see if any are running
 /*	for(child = 0; child < table->size; child++){
 		if((p = ((Process*)ModHash_get(table, child))) != 0){	//Check if process exists
@@ -73,6 +84,23 @@ static void procDebugger(int sig, siginfo_t* siginfo)
 	printf("Child Termination\n"); */
 }
 
+//Check if built-in shell command
+int executeShellCommand(char* command){
+	if(compareStrings(command, "fg")){
+		return 1;
+	}else if(compareStrings(command, "bg")){
+		return 1;
+	}else if(compareStrings(command, "jobs")){
+		return 1;
+	}else if(compareStrings(command, "q")){
+		printf("Exiting...\n");
+		exit(0);
+		return 1;
+	}else{
+		return 0;
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	//Instantiate table and set up status variable
@@ -82,9 +110,12 @@ int main(int argc, char *argv[])
 	printQueue = LinkedList_init();
 	
 	//Set up signal masks
-	sigemptyset(&mask_CS);
+	sigemptyset(&mask_CS);							//Critical section
 	sigaddset (&mask_CS, SIGTERM);
 	sigaddset (&mask_CS, SIGCHLD);
+	
+	sigemptyset(&mask_child);						//Child mask
+	sigaddset (&mask_CS, SIGTERM);
 	
 	//Set up sigactions
 	struct sigaction sa;
@@ -92,6 +123,12 @@ int main(int argc, char *argv[])
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_SIGINFO;
 	sigaction(SIGCHLD, &sa, NULL);
+	
+	struct sigaction sa_Z;
+	sa_Z.sa_handler = procDebugger;
+	sigemptyset(&sa_Z.sa_mask);
+	sa_Z.sa_flags = SA_SIGINFO;
+	sigaction(SIGTSTP, &sa_Z, NULL);
 	
 	/************MAIN SHELL LOOP***************/
 	write(STDOUT_FILENO, PROMPT_MESSAGE, len(PROMPT_MESSAGE));
@@ -121,6 +158,11 @@ int main(int argc, char *argv[])
 		char** arguments = toExecArgs(inputbuffer);
 		int executeInBackground = isBackgroundCommand(arguments);
 		
+		//Check if native shell command
+		if(executeShellCommand(arguments[0])){
+			continue;
+		}
+		
 		if(executeInBackground){
 			free(arguments[len2((const char**)arguments) - 1]);	//Free array holding "&"
 			arguments[len2((const char**)arguments) - 1] = 0;	//Get rid of & after read
@@ -130,11 +172,16 @@ int main(int argc, char *argv[])
 		
 		if(!pid){
 		//Child: Execute.
+			sa.sa_handler = SIG_DFL;
+			sigaction(SIGCHLD, &sa, NULL);
+			free(inputbuffer);	
 			if(executeInBackground){				//If in bg, silence file descriptors
 				int devnull = open("/dev/null", O_RDWR, 0644);
 				dup2(devnull, STDIN_FILENO);
 				dup2(devnull, STDOUT_FILENO);
 				dup2(devnull, STDERR_FILENO);
+			}else{
+				printf("pid = %d\n", recent_fg);
 			}
 			if(isPipe(arguments)){
 				executePipe(arguments ,executeInBackground, getpid());
@@ -144,7 +191,6 @@ int main(int argc, char *argv[])
 			}else{
 				execvp(arguments[0], arguments);
 			}
-			perror(inputbuffer);
 			exit(0);
 		}else if(pid > 0){
 			sigprocmask(SIG_BLOCK,&mask_CS,0);				//CRITICAL SECTION: Proc Table
@@ -155,9 +201,16 @@ int main(int argc, char *argv[])
 			
 			//TODO Parent: Wait for child if in foreground
 			if(!executeInBackground){
+				recent_fg = pid;				//Add to "most recents".
 				waitpid(-pid, &(status), 0);
+			}else{
+				recent_bg = pid;				//Add to "most recents".
 			}
 			//Clear buffer.
+			for(int i = 0; i < len2(arguments); i++) {
+				free(arguments[i]);
+			}
+			free(arguments);
 			free(inputbuffer);			
 		}else{
 		//Error
